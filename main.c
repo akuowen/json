@@ -51,7 +51,11 @@ void test_obj_2() {
                  "        1,\n"
                  "        2,\n"
                  "        3,\n"
-                 "        4,\n"
+                 "        {\n"
+                 "            \"aa\":\"a\",\n"
+                 "            \"bb\":true,\n"
+                 "            \"cc\":1\n"
+                 "        },\n"
                  "        5,\n"
                  "        6,\n"
                  "        \"7\"\n"
@@ -62,8 +66,26 @@ void test_obj_2() {
     print_json_node(json_node);
 }
 
+void test_obj_2_name() {
+    char str[] = "{\"a\":\"aa\"}";
+    json *json_node = create_json();
+    do_json_parse(json_node, str);;
+    char *name  = str_to_json((json *) json_node->child, 1);
+    printf("字符串%s\n",name);
+    print_json_node(json_node);
+}
+
+void test_array_2_str(){
+    char str[] = "[\"addd啊啊啊\",\"b\",\"c\"]";
+    json *json_node = create_json();
+    do_json_parse(json_node, str);
+    char *name  = array_to_json(json_node, 0,0);
+    printf("字符串%s\n",name);
+
+}
+
 int main() {
-    test_obj_2();
+    test_array_2_str();
     return 0;
 }
 

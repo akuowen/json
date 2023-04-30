@@ -8,13 +8,15 @@
 
 static void *(*json_malloc)(size_t sz) = malloc;
 
-char *json_parse(const char *json_str) {
+static void (*json_free)(void *prt) = free;
+
+const char *json_parse(const char *json_str) {
     json *json_item = create_json();
     do_json_parse(json_item, json_str);
     return NULL;
 };
 
-char *do_json_parse(json *json_item, const char *json_str) {
+const char *do_json_parse(json *json_item, const char *json_str) {
     if (!strncmp(json_str, "false", 5)) {
         json_item->value_type = bool_type;
         json_item->int_value = 0;
@@ -61,7 +63,124 @@ char *do_json_parse(json *json_item, const char *json_str) {
     return json_str;
 };
 
-char *json_to_str(json *json_obj) {};
+char *json_to_str(json *json_obj) {
+    return do_json_to_str(json_obj, 0, 1);
+};
+
+char *do_json_to_str(json *json_obj, int deep, int fmt) {
+    char *out;
+    if (!json_obj) { return NULL; }
+    switch (json_obj->value_type) {
+        case null_type:
+            break;
+        case object_type:
+            break;
+        case array_type:
+            break;
+        case str_type:
+            break;
+        case bool_type:
+            break;
+        default:
+            break;
+    }
+};
+
+/**
+ * 字符串转json
+ * @param json_item
+ * @return
+ */
+char *str_to_json(json *json_item, int is_num) {
+    char *str = json_item->str_value;
+    if (is_num) {
+        char *name = json_item->name;
+        unsigned long len = strlen(name);
+        char *result = json_malloc(strlen(name) + 4);
+        *result = '\"';
+        strcpy(result + 1, name);
+        *(result + len + 1) = '\"';
+        *(result + len + 2) = ':';
+        return result;
+    }
+    char *str_json;
+    if (!str) {
+        str_json = json_malloc(3);
+        strcpy(str_json, "\"\"");
+        return str_json;
+    }
+    unsigned long length = strlen(str);
+    str_json = json_malloc(length + 3);
+    *str_json = '\"';
+    strcpy(str_json + 1, str);
+    str_json[length + 1] = '\"';
+    str_json[length + 2] = '\0';
+    return str_json;
+};
+
+char *num_to_json(json *json_item) {};
+
+char *obj_to_json(json *json_item) {};
+
+char *array_to_json(json *json_item, int deep, int fmt) {
+    //子结点的指针
+    char **entities = NULL;
+    char *out = NULL;
+    //  [ ]  \0
+    unsigned long length = 3, node_num = 0, i = 0;
+    json *json_child = (json *) json_item->child;
+
+    //广度优先  看他有几个子节点
+    while (json_child) {
+        json_child = (json *) json_child->next;
+        node_num++;
+    }
+    //没有子节点
+    if (!node_num) {
+        out = json_malloc(length);
+        strcpy(out, "[]");
+        return out;
+    }
+    //申请空间
+    entities = json_malloc(sizeof(char **) * node_num);
+    //更换到头部
+    json_child = (json *) json_item->child;
+
+    while (json_child) {
+        char *result = str_to_json(json_child, json_child->name ? 1 : 0);
+        if (result) {
+            entities[i++] = result;
+            if (json_child->next) {
+                length += strlen(result) + 1;
+            } else {
+                length += strlen(result);
+            }
+        }
+        json_child = (json *) json_child->next;
+
+    }
+
+    out = json_malloc(length + 1);
+    unsigned long pre_len = 0;
+    *out = '[';
+    for (int i = 0; i < node_num; ++i) {
+        char *word = entities[i];
+        unsigned long len = strlen(word);
+
+        strcpy(out + 1 + pre_len, word);
+        pre_len += len + 1;
+        if (i != node_num - 1) {
+            *(out + pre_len) = ',';
+        }
+    }
+    *(out + length - 2) = ']';
+    *(out + length - 1) = '\0';
+    for (int i = 0; i < node_num; ++i) {
+        json_free(entities[i]);
+    };
+    return out;
+
+};
 
 void delete_json(json *json_obj) {};
 
@@ -150,7 +269,7 @@ const char *json_parse_num(json *json_item, const char *json_str) {
     json_item->double_Value = double_value;
     json_item->int_value =
             double_value >= INT_MAX ? INT_MAX : double_value <= (double) INT_MIN ? INT_MIN : (int) double_value;
-    return json_str + length ;
+    return json_str + length;
 
 };
 

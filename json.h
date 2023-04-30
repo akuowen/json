@@ -31,8 +31,8 @@ typedef struct {
  * @param json_str
  * @return
  */
-char *json_parse(const char *json_str);
-char *do_json_parse(json *json_item,const char *json_str);
+const char *json_parse(const char *json_str);
+const char *do_json_parse(json *json_item,const char *json_str);
 
 /**
  * 实体转字符串
@@ -40,6 +40,12 @@ char *do_json_parse(json *json_item,const char *json_str);
  * @return
  */
 char *json_to_str(json *json_obj);
+char *do_json_to_str(json *json_obj,int deep,int fmt);
+
+char *str_to_json(json *json_item,int is_name);
+char *num_to_json(json *json_item);
+char *obj_to_json(json *json_item);
+char *array_to_json(json *json_item,int deep,int fmt);
 
 void delete_json(json *json_obj);
 
