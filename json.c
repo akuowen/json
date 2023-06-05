@@ -78,7 +78,7 @@ char *do_json_to_str(json *json_obj, int deep, int fmt) {
         case array_type:
             break;
         case str_type:
-            break;
+            return str_to_json(json_obj, json_obj->name ? 1 : 0);
         case bool_type:
             break;
         default:
@@ -120,7 +120,28 @@ char *str_to_json(json *json_item, int is_num) {
 
 char *num_to_json(json *json_item) {};
 
-char *obj_to_json(json *json_item) {};
+char *obj_to_json(json *json_item, int deep, int fmt) {
+    char **entities = NULL;
+    char *out = NULL;
+    unsigned long length = 3, node_num = 0, i = 0;
+    json *json_child = (json *) json_item->child;
+    //广度优先  看他有几个子节点
+    while (json_child) {
+        json_child = (json *) json_child->next;
+        node_num++;
+    }
+    //没有子节点
+    if (!node_num) {
+        out = json_malloc(length);
+        strcpy(out, "[]");
+        return out;
+    }
+    //申请空间
+    entities = json_malloc(sizeof(char **) * node_num);
+    //更换到头部
+    json_child = (json *) json_item->child;
+
+};
 
 char *array_to_json(json *json_item, int deep, int fmt) {
     //子结点的指针
@@ -147,7 +168,8 @@ char *array_to_json(json *json_item, int deep, int fmt) {
     json_child = (json *) json_item->child;
 
     while (json_child) {
-        char *result = str_to_json(json_child, json_child->name ? 1 : 0);
+//        char *result = str_to_json(json_child, json_child->name ? 1 : 0);
+        char *result = do_json_to_str(json_child, deep + 1, fmt);
         if (result) {
             entities[i++] = result;
             if (json_child->next) {

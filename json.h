@@ -44,7 +44,7 @@ char *do_json_to_str(json *json_obj,int deep,int fmt);
 
 char *str_to_json(json *json_item,int is_name);
 char *num_to_json(json *json_item);
-char *obj_to_json(json *json_item);
+char *obj_to_json(json *json_item, int deep, int fmt);
 char *array_to_json(json *json_item,int deep,int fmt);
 
 void delete_json(json *json_obj);

@@ -84,7 +84,17 @@ void test_array_2_str(){
 
 }
 
+void test_obj_2_str(){
+    char str[] = "{\"a\":\"aa\",\"b\":\"bb\",\"c\":\"cc\"}";
+    json *json_node = create_json();
+    do_json_parse(json_node, str);
+    char *name  = array_to_json(json_node, 0,0);
+    printf("字符串%s\n",name);
+
+}
+
 int main() {
+//    test_obj_2();
     test_array_2_str();
     return 0;
 }
